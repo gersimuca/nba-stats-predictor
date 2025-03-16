@@ -9,15 +9,19 @@ def train_model():
     try:
         df = pd.read_csv("data/nba_cleaned.csv")
 
-        if "PTS" not in df.columns:
-            raise ValueError("Target column 'PTS' missing")
+        if "Next_PTS" not in df.columns:
+            raise ValueError("Target column 'Next_PTS' missing")
 
-        X = df.drop(columns=["Player", "PTS"])
-        y = df["PTS"]
+        # Use data before 2023 for training, 2023 for validation
+        train = df[df["Season"] < 2023]
+        test = df[df["Season"] == 2023]
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=42
-        )
+        X_train = train.drop(
+            columns=["Player", "Next_PTS", "Season", "Team", "Pos", "Age", "FG_pct", "3P_pct", "TRB", "AST", "PTS"])
+        y_train = train["Next_PTS"]
+        X_test = test.drop(
+            columns=["Player", "Next_PTS", "Season", "Team", "Pos", "Age", "FG_pct", "3P_pct", "TRB", "AST", "PTS"])
+        y_test = test["Next_PTS"]
 
         model = RandomForestRegressor(
             n_estimators=150,
