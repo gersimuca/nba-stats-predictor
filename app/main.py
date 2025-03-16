@@ -99,7 +99,7 @@ with col2:
     player_stats = df[df["Player"] == player_input].sort_values("Season", ascending=False)
 
     if not player_stats.empty:
-        # Show key metrics
+        # Key metrics
         cols = st.columns(4)
         with cols[0]:
             st.metric("Most Recent Season", player_stats.iloc[0]["Season"])
@@ -110,7 +110,7 @@ with col2:
         with cols[3]:
             st.metric("Career High PPG", player_stats["PTS"].max())
 
-        # Show detailed stats
+        # Detailed stats
         st.dataframe(
             player_stats[["Season", "Age", "Team", "Pos", "PTS", "AST", "TRB", "FG_pct", "3P_pct", "Next_PTS"]],
             hide_index=True,
@@ -125,7 +125,7 @@ with col2:
             }
         )
 
-        # Add performance trend chart
+        # Performance trend chart
         try:
             chart_data = player_stats[["Season", "PTS", "Next_PTS"]].melt(
                 id_vars="Season",
