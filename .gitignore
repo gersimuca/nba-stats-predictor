@@ -1,0 +1,23 @@
+# Python bytecode files
+__pycache__/
+*.pyc
+
+# Virtual environment directory
+venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/g
+
+# Data files (these can be large or automatically generated)
+models/*.pkl
+
+# IDE-specific files (e.g., VS Code, PyCharm)
+.vscode/
+.idea/
+
+# Log files
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db

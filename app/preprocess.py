@@ -10,8 +10,8 @@ def preprocess_data():
         numeric_cols = df.select_dtypes(include=["number"]).columns
         df[numeric_cols] = df[numeric_cols].fillna(0)
 
-        # Convert team to categorical (FIXED COLUMN NAME)
-        df = pd.get_dummies(df, columns=["Team"], prefix="Team", drop_first=True)
+        # Convert categorical columns (BOTH Team and Position)
+        df = pd.get_dummies(df, columns=["Team", "Pos"], prefix=["Team", "Pos"], drop_first=True)
 
         df.to_csv("data/nba_cleaned.csv", index=False)
         return True
