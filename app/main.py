@@ -20,7 +20,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Embedded Dark Theme CSS (forcing a dark-only theme)
+# Embedded Dark Theme CSS
 st.markdown("""
     <style>
         :root {
@@ -89,15 +89,18 @@ with st.status("🚀 Initializing application...", expanded=True) as status:
         st.error(f"🚨 Initialization failed: {str(e)}")
         st.stop()
 
+
 # Load assets
 @st.cache_data
 def load_data():
     return pd.read_csv("data/nba_cleaned.csv")
 
+
 @st.cache_resource
 def load_model():
     with open("models/nba_model.pkl", "rb") as f:
         return pickle.load(f)
+
 
 try:
     df = load_data()
@@ -105,6 +108,7 @@ try:
 except Exception as e:
     st.error(f"🚨 Failed to load resources: {str(e)}")
     st.stop()
+
 
 # Prediction function for next season points per game
 def predict_ppg(player_name):
@@ -129,7 +133,7 @@ def predict_ppg(player_name):
         st.error(f"Prediction error: {str(e)}")
         return None, None
 
-# Sidebar Navigation with over 10 dashboards
+
 pages = [
     "Player Prediction",
     "Player Comparison",
@@ -148,7 +152,7 @@ pages = [
 st.sidebar.header("🔍 Navigation")
 page = st.sidebar.radio("Go to", pages)
 
-# Player Prediction Dashboard (existing)
+# Player Prediction Dashboard
 if page == "Player Prediction":
     col1, col2 = st.columns([1, 3])
     with col1:
@@ -219,7 +223,8 @@ if page == "Player Prediction":
             st.plotly_chart(fig, use_container_width=True)
             with st.expander("📊 Detailed Statistics"):
                 st.dataframe(
-                    player_stats[["Season", "Age", "Team", "Position", "Points", "Assists", "Rebounds", "Field Goal %", "3-Point %"]],
+                    player_stats[["Season", "Age", "Team", "Position", "Points", "Assists", "Rebounds", "Field Goal %",
+                                  "3-Point %"]],
                     column_config={
                         "Points": st.column_config.NumberColumn(format="%.1f"),
                         "Field Goal %": st.column_config.ProgressColumn(format="%.1f%%", min_value=0, max_value=100)
@@ -227,7 +232,7 @@ if page == "Player Prediction":
                     use_container_width=True
                 )
 
-# Player Comparison Dashboard (existing)
+# Player Comparison Dashboard
 elif page == "Player Comparison":
     st.subheader("👥 Player Comparison Tool")
     col1, col2 = st.columns(2)
@@ -280,7 +285,7 @@ elif page == "Player Comparison":
         )
         st.plotly_chart(fig, use_container_width=True)
 
-# Model Insights Dashboard (existing)
+# Model Insights Dashboard
 elif page == "Model Insights":
     st.subheader("🤖 Model Intelligence Hub")
 
@@ -394,8 +399,7 @@ elif page == "Model Insights":
         st.plotly_chart(fig3, use_container_width=True)
 
 
-# Additional Dashboards
-
+# Team Overview Dashboard
 elif page == "Team Overview":
     st.subheader("🏢 Team Overview Dashboard")
     team_stats = df.groupby("Team").agg({
@@ -410,6 +414,7 @@ elif page == "Team Overview":
                  template="plotly_dark", title="Average Points per Team")
     st.plotly_chart(fig, use_container_width=True)
 
+# Season Analysis Dashboard
 elif page == "Season Analysis":
     st.subheader("📅 Season Analysis Dashboard")
     season = st.selectbox("Select Season:", sorted(df["Season"].unique()))
@@ -426,6 +431,7 @@ elif page == "Season Analysis":
     st.markdown("**Average Metrics**")
     st.write(metrics)
 
+# Advanced Metrics Dashboard
 elif page == "Advanced Metrics":
     st.subheader("⚡ Advanced Metrics Dashboard")
     # Create an Efficiency metric: (Points + Rebounds + Assists) divided by Age.
@@ -435,6 +441,7 @@ elif page == "Advanced Metrics":
     st.plotly_chart(fig, use_container_width=True)
     st.markdown("Calculated Efficiency = (Points + Rebounds + Assists) / Age")
 
+# Historical Performance Dashboard
 elif page == "Historical Performance":
     st.subheader("📜 Historical Performance Dashboard")
     player = st.selectbox("Select Player for History:", df["Player"].unique())
@@ -444,6 +451,7 @@ elif page == "Historical Performance":
     st.plotly_chart(fig, use_container_width=True)
     st.dataframe(player_history[["Season", "Points", "Assists", "Rebounds"]])
 
+# Player Trends Dashboard
 elif page == "Player Trends":
     st.subheader("📈 Player Trends Dashboard")
     player = st.selectbox("Select Player for Trend Analysis:", df["Player"].unique())
@@ -453,6 +461,7 @@ elif page == "Player Trends":
                   title=f"{player}'s {stat} Trend")
     st.plotly_chart(fig, use_container_width=True)
 
+# Shooting Analysis Dashboard
 elif page == "Shooting Analysis":
     st.subheader("🏀 Shooting Analysis Dashboard")
     st.markdown("Scatter plot of Field Goal % vs. 3-Point %")
@@ -460,18 +469,21 @@ elif page == "Shooting Analysis":
                      template="plotly_dark", title="Field Goal % vs 3-Point %")
     st.plotly_chart(fig, use_container_width=True)
 
+# Playmaking Analysis Dashboard
 elif page == "Playmaking Analysis":
     st.subheader("🎯 Playmaking Analysis Dashboard")
     st.markdown("Distribution of Assists over Seasons")
     fig = px.histogram(df, x="Assists", nbins=30, template="plotly_dark", title="Assists Distribution")
     st.plotly_chart(fig, use_container_width=True)
 
+# Defensive Metrics Dashboard
 elif page == "Defensive Metrics":
     st.subheader("🛡️ Defensive Metrics Dashboard")
     st.markdown("Using Rebounds as a proxy for defensive performance")
     fig = px.violin(df, x="Rebounds", template="plotly_dark", title="Rebounds Distribution")
     st.plotly_chart(fig, use_container_width=True)
 
+# Future Projections Dashboard
 elif page == "Future Projections":
     st.subheader("🔮 Future Projections Dashboard")
     player = st.selectbox("Select Player for Projection:", df["Player"].unique())
@@ -487,6 +499,7 @@ elif page == "Future Projections":
     else:
         st.warning("Player data not available for projection")
 
+# Interactive Player Filter Dashboard
 elif page == "Interactive Player Filter":
     st.subheader("🔍 Interactive Player Filter Dashboard")
     min_points = st.slider("Minimum Points Per Game",
