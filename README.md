@@ -29,7 +29,7 @@ Follow these steps to set up and run the NBA Stats Predictor:
    ```
 4. **Run the Streamlit app:**
    ```sh
-   streamlit run app/main.py
+   streamlit run app/app.py
    ```
 
 ## 🎯 Usage
