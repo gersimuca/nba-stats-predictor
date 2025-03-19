@@ -50,6 +50,7 @@ Follow these steps to set up and run the NBA Stats Predictor:
 │   ├── nba_cleaned.csv    # Processed dataset
 ├── 📂 models
 │   ├── nba_model.pkl      # Trained machine learning model
+│   ├── performance.txt    # Model performance metrics
 ├── requirements.txt       # Dependencies
 └── README.md              # Documentation
 ```
