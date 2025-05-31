@@ -3,7 +3,7 @@
 ## Overview
 The **NBA Stats Predictor** is a machine learning application that predicts a player's **points per game (PPG)** based on historical performance data. This project utilizes **web scraping, data preprocessing, and machine learning** to provide insights into player performance.
 
-## 🚀 Features
+## Features
 - **Data Scraping:** Extracts NBA player stats from [Basketball Reference](https://www.basketball-reference.com/).
 - **Data Processing:** Cleans and formats the raw data for accurate predictions.
 - **Machine Learning Model:** Trains a **RandomForestRegressor** to predict PPG.
