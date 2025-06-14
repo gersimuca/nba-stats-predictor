@@ -1,3 +1,5 @@
+import time
+
 import streamlit as st
 import pandas as pd
 import pickle
@@ -98,24 +100,80 @@ st.title("🏀 NBA Player Performance Predictor")
 
 # Data pipeline
 with st.status("🚀 Initializing application...", expanded=True) as status:
+    progress_bar = st.progress(0)
+    status_message = st.empty()
+
     try:
+        # Step 1: Check for raw data
+        status_message.write("🔍 Checking data requirements...")
+        progress_bar.progress(5)
+        time.sleep(0.3)
+
         if not os.path.exists("data/nba_stats.csv"):
-            st.write("⏳ Downloading historical NBA stats...")
+            status_message.write("⏳ Downloading historical NBA stats...")
+            # Simulate progress during download
+            for i in range(5, 31):
+                progress_bar.progress(i)
+                time.sleep(0.1)
             fetch_nba_stats()
+            status_message.write("✅ Stats downloaded!")
+            progress_bar.progress(30)
+        else:
+            status_message.write("✅ Historical stats found")
+            progress_bar.progress(30)
+            time.sleep(0.3)
+
+        # Step 2: Check for cleaned data
+        status_message.write("🧹 Checking data quality...")
+        progress_bar.progress(35)
+        time.sleep(0.3)
 
         if not os.path.exists("data/nba_cleaned.csv"):
-            st.write("🧹 Cleaning and enhancing data...")
+            status_message.write("🧠 Processing data...")
+            # Simulate progress during processing
+            for i in range(35, 56):
+                progress_bar.progress(i)
+                time.sleep(0.05)
             preprocess_data()
+            status_message.write("✨ Data enhanced!")
+            progress_bar.progress(55)
+        else:
+            status_message.write("✅ Clean data available")
+            progress_bar.progress(55)
+            time.sleep(0.3)
+
+        # Step 3: Check for model
+        status_message.write("🤖 Checking AI model...")
+        progress_bar.progress(60)
+        time.sleep(0.3)
 
         if not os.path.exists("models/nba_model.pkl"):
-            st.write("🤖 Training prediction model...")
+            status_message.write("🧠 Training prediction model...")
+            # Simulate progress during training
+            for i in range(60, 86):
+                progress_bar.progress(i)
+                time.sleep(0.05)
             train_model()
+            status_message.write("🎯 Model trained!")
+            progress_bar.progress(85)
+        else:
+            status_message.write("✅ Prediction model ready")
+            progress_bar.progress(85)
+            time.sleep(0.3)
+
+        # Final loading
+        status_message.write("🔍 Loading assets...")
+        # Simulate final loading
+        for i in range(85, 101):
+            progress_bar.progress(i)
+            time.sleep(0.02)
 
         status.update(label="✅ System ready!", state="complete", expanded=False)
+
     except Exception as e:
+        progress_bar.progress(0)
         st.error(f"🚨 Initialization failed: {str(e)}")
         st.stop()
-
 
 # Load assets
 @st.cache_data
