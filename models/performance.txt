@@ -1,0 +1,7 @@
+Model Evaluation (2023-24 season)
+MAE: 2.26
+R²: 0.65
+Training Seasons: 9
+Test Season: 2023-24
+Model Type: XGBoost Regressor
+Features Used: 64
