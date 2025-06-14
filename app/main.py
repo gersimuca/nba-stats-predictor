@@ -1,3 +1,5 @@
+import time
+
 import streamlit as st
 import pandas as pd
 import pickle
@@ -20,49 +22,76 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Embedded Dark Theme CSS
+# Light Theme CSS
 st.markdown("""
     <style>
         :root {
-            --primary: #0a192f;
-            --secondary: #172a45;
-            --accent: #2a4a6c;
-            --highlight: #00b4d8;
-            --text: #ccd6f6;
+            --primary: #f8f9fa;
+            --secondary: #ffffff;
+            --accent: #4e73df;
+            --highlight: #36b9cc;
+            --text: #5a5c69;
+            --border: #e3e6f0;
         }
+        body { background-color: #f8f9fa; }
         .main { background-color: var(--primary); color: var(--text); }
         .stSelectbox div[data-baseweb="select"] {
             background-color: var(--secondary);
             border-radius: 8px;
             color: var(--text);
+            border: 1px solid var(--border);
         }
         .metric-box {
             padding: 20px;
             border-radius: 15px;
             background: var(--secondary);
-            border: 1px solid #1f4068;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s;
         }
         .metric-box:hover { transform: scale(1.02); }
         .player-header {
-            background: linear-gradient(45deg, var(--accent), var(--secondary));
+            background: linear-gradient(45deg, #ffffff, #f0f5ff);
             padding: 2rem;
             border-radius: 15px;
             margin: 1rem 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
         }
         .stButton button {
             background: var(--accent) !important;
-            border: 1px solid var(--highlight);
-            color: var(--text) !important;
+            border: none !important;
+            color: white !important;
             border-radius: 8px;
             padding: 10px 24px;
             transition: all 0.3s;
         }
-        .stDataFrame { background-color: var(--secondary) !important; }
+        .stButton button:hover {
+            background: #2e59d9 !important;
+            transform: translateY(-2px);
+        }
+        .stDataFrame { 
+            background-color: var(--secondary) !important;
+            border: 1px solid var(--border) !important;
+        }
         .plotly-chart { background-color: rgba(0,0,0,0) !important; }
         .sidebar .sidebar-content {
             background-color: var(--secondary);
+            border-right: 1px solid var(--border);
+        }
+        .stStatusWidget {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--secondary);
+        }
+        .stProgress > div > div {
+            background-color: var(--accent) !important;
+        }
+        .stRadio > div {
+            background-color: var(--secondary);
+            border-radius: 8px;
+            padding: 5px;
+            border: 1px solid var(--border);
         }
     </style>
 """, unsafe_allow_html=True)
@@ -71,24 +100,80 @@ st.title("🏀 NBA Player Performance Predictor")
 
 # Data pipeline
 with st.status("🚀 Initializing application...", expanded=True) as status:
+    progress_bar = st.progress(0)
+    status_message = st.empty()
+
     try:
+        # Step 1: Check for raw data
+        status_message.write("🔍 Checking data requirements...")
+        progress_bar.progress(5)
+        time.sleep(0.3)
+
         if not os.path.exists("data/nba_stats.csv"):
-            st.write("⏳ Downloading historical NBA stats...")
+            status_message.write("⏳ Downloading historical NBA stats...")
+            # Simulate progress during download
+            for i in range(5, 31):
+                progress_bar.progress(i)
+                time.sleep(0.1)
             fetch_nba_stats()
+            status_message.write("✅ Stats downloaded!")
+            progress_bar.progress(30)
+        else:
+            status_message.write("✅ Historical stats found")
+            progress_bar.progress(30)
+            time.sleep(0.3)
+
+        # Step 2: Check for cleaned data
+        status_message.write("🧹 Checking data quality...")
+        progress_bar.progress(35)
+        time.sleep(0.3)
 
         if not os.path.exists("data/nba_cleaned.csv"):
-            st.write("🧹 Cleaning and enhancing data...")
+            status_message.write("🧠 Processing data...")
+            # Simulate progress during processing
+            for i in range(35, 56):
+                progress_bar.progress(i)
+                time.sleep(0.05)
             preprocess_data()
+            status_message.write("✨ Data enhanced!")
+            progress_bar.progress(55)
+        else:
+            status_message.write("✅ Clean data available")
+            progress_bar.progress(55)
+            time.sleep(0.3)
+
+        # Step 3: Check for model
+        status_message.write("🤖 Checking AI model...")
+        progress_bar.progress(60)
+        time.sleep(0.3)
 
         if not os.path.exists("models/nba_model.pkl"):
-            st.write("🤖 Training prediction model...")
+            status_message.write("🧠 Training prediction model...")
+            # Simulate progress during training
+            for i in range(60, 86):
+                progress_bar.progress(i)
+                time.sleep(0.05)
             train_model()
+            status_message.write("🎯 Model trained!")
+            progress_bar.progress(85)
+        else:
+            status_message.write("✅ Prediction model ready")
+            progress_bar.progress(85)
+            time.sleep(0.3)
+
+        # Final loading
+        status_message.write("🔍 Loading assets...")
+        # Simulate final loading
+        for i in range(85, 101):
+            progress_bar.progress(i)
+            time.sleep(0.02)
 
         status.update(label="✅ System ready!", state="complete", expanded=False)
+
     except Exception as e:
+        progress_bar.progress(0)
         st.error(f"🚨 Initialization failed: {str(e)}")
         st.stop()
-
 
 # Load assets
 @st.cache_data
@@ -168,20 +253,20 @@ if page == "Player Prediction":
             if prediction:
                 st.markdown(f"""
                     <div class="metric-box">
-                        <h3 style="color: var(--highlight);">Predicted PPG</h3>
-                        <h1 style="font-size: 2.5rem; margin: 1rem 0; color: var(--highlight);">{prediction}</h1>
+                        <h3 style="color: #4e73df;">Predicted PPG</h3>
+                        <h1 style="font-size: 2.5rem; margin: 1rem 0; color: #4e73df;">{prediction}</h1>
                         <div style="display: flex; align-items: center;">
-                            <div style="width: 100%; height: 8px; background: #1f4068; border-radius: 4px;">
-                                <div style="width: {confidence}%; height: 100%; background: var(--highlight); border-radius: 4px;"></div>
+                            <div style="width: 100%; height: 8px; background: #e3e6f0; border-radius: 4px;">
+                                <div style="width: {confidence}%; height: 100%; background: #4e73df; border-radius: 4px;"></div>
                             </div>
-                            <span style="margin-left: 1rem; color: var(--highlight);">{confidence}%</span>
+                            <span style="margin-left: 1rem; color: #4e73df;">{confidence}%</span>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
             else:
                 st.warning("Player data not available for prediction")
     with col2:
-        st.markdown(f'<div class="player-header"><h2>{player_input}</h2><p>Performance Profile</p></div>',
+        st.markdown(f'<div class="player-header"><h2 style="color: #5a5c69;">{player_input}</h2><p>Performance Profile</p></div>',
                     unsafe_allow_html=True)
         player_stats = df[df["Player"] == player_input].sort_values("Season")
         if not player_stats.empty:
@@ -215,11 +300,10 @@ if page == "Player Prediction":
             fig = px.line(player_stats, x="Season", y=["Points", "Next Season Points"],
                           title="Performance Trend",
                           labels={"value": "Points Per Game", "variable": "Metric"},
-                          color_discrete_sequence=["#00b4d8", "#2a4a6c"],
-                          template="plotly_dark")
+                          color_discrete_sequence=["#4e73df", "#36b9cc"])  # Fixed color values
             fig.update_layout(plot_bgcolor="rgba(0,0,0,0)",
                               paper_bgcolor="rgba(0,0,0,0)",
-                              font_color="white")
+                              font_color="#5a5c69")
             st.plotly_chart(fig, use_container_width=True)
             with st.expander("📊 Detailed Statistics"):
                 st.dataframe(
@@ -242,7 +326,6 @@ elif page == "Player Comparison":
         player2 = st.selectbox("Select Player 2:", sorted(df["Player"].unique()), index=1)
 
     if player1 and player2:
-        # Sort each player's history by Season to ensure correct plotting
         p1_stats = df[df["Player"] == player1].sort_values("Season")
         p2_stats = df[df["Player"] == player2].sort_values("Season")
 
@@ -274,14 +357,13 @@ elif page == "Player Comparison":
                     </div>
                 """, unsafe_allow_html=True)
 
-        # Concatenate and sort the data by Season before plotting
         comparison_df = pd.concat([p1_stats, p2_stats]).sort_values("Season")
         fig = px.line(comparison_df, x="Season", y="Points", color="Player",
-                      title="Points Per Game Trend", template="plotly_dark")
+                      title="Points Per Game Trend")
         fig.update_layout(
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            font_color="white"
+            font_color="#5a5c69"
         )
         st.plotly_chart(fig, use_container_width=True)
 
@@ -289,7 +371,6 @@ elif page == "Player Comparison":
 elif page == "Model Insights":
     st.subheader("🤖 Model Intelligence Hub")
 
-    # Create tabs for better organization
     tabs = st.tabs(["Performance Metrics", "Feature Impact", "Prediction Accuracy"])
 
     with tabs[0]:
@@ -299,15 +380,15 @@ elif page == "Model Insights":
                 performance_data = f.readlines()
             cols = st.columns(3)
             metrics = {
-                "MAE": ("Mean Absolute Error", "#00b4d8"),
-                "R²": ("Prediction Accuracy", "#2a4a6c"),
-                "Test Season": ("Evaluation Period", "#1f4068")
+                "MAE": ("Mean Absolute Error", "#4e73df"),
+                "R²": ("Prediction Accuracy", "#36b9cc"),
+                "Test Season": ("Evaluation Period", "#5a5c69")
             }
             for col, (key, (label, color)) in zip(cols, metrics.items()):
                 value = next((line.split(": ")[1].strip() for line in performance_data if line.startswith(key)), "N/A")
                 with col:
                     st.markdown(f"""
-                        <div class="metric-box" style="border-color: {color};">
+                        <div class="metric-box" style="border-left: 4px solid {color};">
                             <h4 style="color: {color};">{label}</h4>
                             <h3>{value}</h3>
                         </div>
@@ -334,28 +415,28 @@ elif page == "Model Insights":
             }
             feature_imp["Feature"] = feature_imp["Feature"].map(feature_mapping)
             fig2 = px.bar(feature_imp, x="Impact", y="Feature", orientation='h',
-                          color="Impact", color_continuous_scale="Tealgrn", template="plotly_dark",
+                          color="Impact", color_continuous_scale="Blues",
                           height=400)
             fig2.update_layout(title="Most Influential Performance Factors",
                                xaxis_title="Impact Score (0-1 scale)",
                                yaxis_title="",
                                plot_bgcolor="rgba(0,0,0,0)",
                                paper_bgcolor="rgba(0,0,0,0)",
-                               font_color="white",
+                               font_color="#5a5c69",
                                margin=dict(l=20, r=20, t=60, b=20))
             st.plotly_chart(fig2, use_container_width=True)
             with st.expander("🔍 Feature Descriptions", expanded=True):
                 st.markdown("""
                 <div style="line-height: 1.6;">
-                    <div style="padding: 10px; border-left: 4px solid #00b4d8;">
+                    <div style="padding: 10px; border-left: 4px solid #4e73df;">
                         <h4>3-Year Scoring Consistency</h4>
                         <p>Average points over three consecutive seasons, showing player reliability.</p>
                     </div>
-                    <div style="padding: 10px; border-left: 4px solid #2a4a6c; margin-top: 15px;">
+                    <div style="padding: 10px; border-left: 4px solid #36b9cc; margin-top: 15px;">
                         <h4>Yearly Progress</h4>
                         <p>Percentage change in scoring compared to previous season.</p>
                     </div>
-                    <div style="padding: 10px; border-left: 4px solid #1f4068; margin-top: 15px;">
+                    <div style="padding: 10px; border-left: 4px solid #5a5c69; margin-top: 15px;">
                         <h4>Scoring Efficiency</h4>
                         <p>Measures shooting effectiveness considering all scoring types.</p>
                     </div>
@@ -366,36 +447,25 @@ elif page == "Model Insights":
 
     with tabs[2]:
         st.markdown("### 🔍 Prediction Accuracy")
-        # Sample a subset of the data to avoid long processing times
         sample_df = df.sample(n=min(50, len(df)), random_state=42).copy()
-
-
-        # Function to compute prediction for a row based on the model (using the same feature selection as in predict_ppg)
-        def compute_prediction(row):
-            exclude_cols = [
-                "Player", "Next Season Points", "Season",
-                "Team", "Position", "Age", "Field Goal %",
-                "3-Point %", "Rebounds", "Assists", "Points"
-            ]
-            features = row.drop(labels=exclude_cols)
-            return model.predict(pd.DataFrame([features]))[0]
-
-
-        sample_df["Predicted"] = sample_df.apply(compute_prediction, axis=1)
+        sample_df["Predicted"] = sample_df.apply(lambda row: model.predict(pd.DataFrame([row.drop([
+            "Player", "Next Season Points", "Season", "Team", "Position", "Age",
+            "Field Goal %", "3-Point %", "Rebounds", "Assists", "Points"])]))[0], axis=1)
 
         fig3 = px.scatter(sample_df, x="Next Season Points", y="Predicted",
                           hover_data=["Player", "Season"],
-                          template="plotly_dark",
                           title="Actual vs Predicted Next Season Points")
-        # Add a reference line (y=x)
         min_val = min(sample_df["Next Season Points"].min(), sample_df["Predicted"].min())
         max_val = max(sample_df["Next Season Points"].max(), sample_df["Predicted"].max())
         fig3.add_shape(
             type="line",
             x0=min_val, y0=min_val,
             x1=max_val, y1=max_val,
-            line=dict(color="LightSeaGreen", dash="dash")
+            line=dict(color="#4e73df", dash="dash")
         )
+        fig3.update_layout(plot_bgcolor="rgba(0,0,0,0)",
+                           paper_bgcolor="rgba(0,0,0,0)",
+                           font_color="#5a5c69")
         st.plotly_chart(fig3, use_container_width=True)
 
 
@@ -411,7 +481,10 @@ elif page == "Team Overview":
     }).reset_index()
     st.dataframe(team_stats)
     fig = px.bar(team_stats, x="Team", y="Points", color="Team",
-                 template="plotly_dark", title="Average Points per Team")
+                 title="Average Points per Team")
+    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)",
+                      font_color="#5a5c69")
     st.plotly_chart(fig, use_container_width=True)
 
 # Season Analysis Dashboard
@@ -420,8 +493,11 @@ elif page == "Season Analysis":
     season = st.selectbox("Select Season:", sorted(df["Season"].unique()))
     season_data = df[df["Season"] == season]
     st.write(f"Statistics for season {season}")
-    fig = px.box(season_data, y="Points", template="plotly_dark",
+    fig = px.box(season_data, y="Points",
                  title=f"Points Distribution in {season}")
+    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)",
+                      font_color="#5a5c69")
     st.plotly_chart(fig, use_container_width=True)
     metrics = season_data.agg({
         "Points": "mean",
@@ -434,10 +510,12 @@ elif page == "Season Analysis":
 # Advanced Metrics Dashboard
 elif page == "Advanced Metrics":
     st.subheader("⚡ Advanced Metrics Dashboard")
-    # Create an Efficiency metric: (Points + Rebounds + Assists) divided by Age.
     df["Efficiency"] = (df["Points"] + df["Rebounds"] + df["Assists"]) / df["Age"]
     fig = px.scatter(df, x="Efficiency", y="Points", hover_data=["Player", "Season"],
-                     template="plotly_dark", title="Efficiency vs Points")
+                     title="Efficiency vs Points")
+    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)",
+                      font_color="#5a5c69")
     st.plotly_chart(fig, use_container_width=True)
     st.markdown("Calculated Efficiency = (Points + Rebounds + Assists) / Age")
 
@@ -446,8 +524,11 @@ elif page == "Historical Performance":
     st.subheader("📜 Historical Performance Dashboard")
     player = st.selectbox("Select Player for History:", df["Player"].unique())
     player_history = df[df["Player"] == player].sort_values("Season")
-    fig = px.line(player_history, x="Season", y="Points", template="plotly_dark",
+    fig = px.line(player_history, x="Season", y="Points",
                   title=f"{player} Points Over Seasons")
+    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)",
+                      font_color="#5a5c69")
     st.plotly_chart(fig, use_container_width=True)
     st.dataframe(player_history[["Season", "Points", "Assists", "Rebounds"]])
 
@@ -457,30 +538,39 @@ elif page == "Player Trends":
     player = st.selectbox("Select Player for Trend Analysis:", df["Player"].unique())
     stat = st.selectbox("Select Statistic:", ["Points", "Assists", "Rebounds", "Field Goal %", "3-Point %"])
     player_trend = df[df["Player"] == player].sort_values("Season")
-    fig = px.area(player_trend, x="Season", y=stat, template="plotly_dark",
+    fig = px.area(player_trend, x="Season", y=stat,
                   title=f"{player}'s {stat} Trend")
+    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)",
+                      font_color="#5a5c69")
     st.plotly_chart(fig, use_container_width=True)
 
 # Shooting Analysis Dashboard
 elif page == "Shooting Analysis":
     st.subheader("🏀 Shooting Analysis Dashboard")
-    st.markdown("Scatter plot of Field Goal % vs. 3-Point %")
     fig = px.scatter(df, x="Field Goal %", y="3-Point %", hover_data=["Player", "Season"],
-                     template="plotly_dark", title="Field Goal % vs 3-Point %")
+                     title="Field Goal % vs 3-Point %")
+    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)",
+                      font_color="#5a5c69")
     st.plotly_chart(fig, use_container_width=True)
 
 # Playmaking Analysis Dashboard
 elif page == "Playmaking Analysis":
     st.subheader("🎯 Playmaking Analysis Dashboard")
-    st.markdown("Distribution of Assists over Seasons")
-    fig = px.histogram(df, x="Assists", nbins=30, template="plotly_dark", title="Assists Distribution")
+    fig = px.histogram(df, x="Assists", nbins=30, title="Assists Distribution")
+    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)",
+                      font_color="#5a5c69")
     st.plotly_chart(fig, use_container_width=True)
 
 # Defensive Metrics Dashboard
 elif page == "Defensive Metrics":
     st.subheader("🛡️ Defensive Metrics Dashboard")
-    st.markdown("Using Rebounds as a proxy for defensive performance")
-    fig = px.violin(df, x="Rebounds", template="plotly_dark", title="Rebounds Distribution")
+    fig = px.violin(df, x="Rebounds", title="Rebounds Distribution")
+    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)",
+                      font_color="#5a5c69")
     st.plotly_chart(fig, use_container_width=True)
 
 # Future Projections Dashboard
@@ -491,8 +581,8 @@ elif page == "Future Projections":
     if prediction:
         st.markdown(f"""
             <div class="metric-box">
-                <h3 style="color: var(--highlight);">Predicted Next Season PPG</h3>
-                <h1 style="font-size: 2.5rem; margin: 1rem 0; color: var(--highlight);">{prediction}</h1>
+                <h3 style="color: var(--accent);">Predicted Next Season PPG</h3>
+                <h1 style="font-size: 2.5rem; margin: 1rem 0; color: var(--accent);">{prediction}</h1>
                 <p>Confidence: {confidence}%</p>
             </div>
         """, unsafe_allow_html=True)
@@ -517,13 +607,16 @@ elif page == "Interactive Player Filter":
                      (df["Position"].isin(selected_position))]
     st.dataframe(filtered_df)
     fig = px.scatter(filtered_df, x="Points", y="Assists", color="Position",
-                     hover_data=["Player", "Season"], template="plotly_dark",
+                     hover_data=["Player", "Season"],
                      title="Filtered Player Stats")
+    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)",
+                      font_color="#5a5c69")
     st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
 st.markdown(f"""
-    <div style="text-align: center; color: #666; padding: 1rem;">
+    <div style="text-align: center; color: #858796; padding: 1rem;">
         NBA Predictor • Data Source: basketball-reference.com • 
         Updated: {datetime.now().strftime("%Y-%m-%d")} • Version: 3.0
     </div>
